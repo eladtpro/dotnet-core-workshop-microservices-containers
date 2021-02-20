@@ -165,7 +165,7 @@ else
    # Call the PS script that scrapes the Azure resources information, puts secrets in key vault and writes to the app user secrets
    $settingsPath = Join-Path -Path $rootARMPath -ChildPath "WriteDataSettingsToFile.ps1"
    $command = "$($settingsPath) -YourInitials $($yourInitials) -ResourceGroupName $($resourceGroupName) -subscriptionId $($subscriptionId)"
-   Write-Host "Executing Command: $($command)"
+   Write-Host "Invoke-Expression $($command)"
    Invoke-Expression $command
  }
 
