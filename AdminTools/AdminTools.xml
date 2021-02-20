@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AdminTools</name>
+    </assembly>
+    <members>
+        <member name="M:AdminTools.Controllers.ConnectionManagerController.CheckConnections">
+            <summary>
+                Checks for Azure Resource Connectivity Errors 
+            </summary>
+        </member>
+        <member name="M:AdminTools.Controllers.GenerateDataController.GenerateCatalogReadTableData">
+            <summary>
+                Genreates Catalog Read Table
+            </summary>
+        </member>
+        <member name="M:AdminTools.Controllers.GenerateDataController.GenerateCatalogDatabaseData">
+            <summary>
+                Generates Catalog Database.
+            </summary>
+        </member>
+        <member name="M:AdminTools.Controllers.GenerateDataController.ProcessReadTable(System.Collections.Generic.List{AdminTools.Entities.ProductEntity},System.String,AdminTools.Controllers.GenerateDataController.BatchOperation)">
+            <summary>
+            Generic method that can either insert or delete all products as a batch
+            </summary>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:AdminTools.Database.BaseRepository`1.Add(`0)" -->
+        <!-- Badly formed XML comment ignored for member "M:AdminTools.Database.BaseRepository`1.Remove(`0)" -->
+        <!-- Badly formed XML comment ignored for member "M:AdminTools.Database.BaseRepository`1.Update(`0)" -->
+        <member name="M:AdminTools.Database.BaseRepository`1.SaveChanges">
+            <summary>
+                Instructs Entity Framework to iterate through Context object,
+                generating appropriate Insert, Edit and Delete statements.
+            </summary>
+            <returns>Number of records changed</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:AdminTools.Database.BaseRepository`1.Get" -->
+        <!-- Badly formed XML comment ignored for member "M:AdminTools.Database.BaseRepository`1.Find(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})" -->
+        <!-- Badly formed XML comment ignored for member "M:AdminTools.Database.BaseRepository`1.FindById(System.Int32)" -->
+        <!-- Badly formed XML comment ignored for member "M:AdminTools.Database.BaseRepository`1.AttachAndMarkModfied(`0)" -->
+        <member name="T:AdminTools.Entities.ProductEntity">
+            <summary>
+                This class maps to an Azure Table Entity
+                "MusicProduct" => Partition Key
+                ProductId => Row Key
+            </summary>
+        </member>
+        <member name="M:AdminTools.Filters.DataGeneratorCustomExceptionFilter.TraverseException(System.Exception)">
+            <summary>
+                Enumerates exception collection fetching the original exception, which would be the real
+                error. The outer exceptions are wrappers which we are not concerned.
+            </summary>
+            <param name="exception"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

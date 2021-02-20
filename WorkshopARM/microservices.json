@@ -1,0 +1,342 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "yourInitials": {
+      "type": "string",
+      "minLength": 1
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "allowedValues": [
+        "eastasia",
+        "southeastasia",
+        "centralus",
+        "eastus",
+        "eastus2",
+        "westus",
+        "westus2",
+        "northcentralus",
+        "southcentralus",
+        "westcentralus",
+        "northeurope",
+        "westeurope",
+        "japanwest",
+        "japaneast",
+        "brazilsouth",
+        "australiaeast",
+        "australiasoutheast",
+        "southindia",
+        "centralindia",
+        "westindia",
+        "canadacentral",
+        "canadaeast",
+        "uksouth",
+        "ukwest",
+        "koreacentral",
+        "koreasouth",
+        "francecentral",
+        "australiacentral",
+        "australiacentral2",
+        "southafricanorth",
+        "southafricawest"
+      ]
+    }
+  },
+  "variables": {
+    "sbNamespaceAuthRule": "[toLower(concat(variables('serviceBusNamespaceName'),concat('/',toLower(parameters('yourInitials')),'nsrule')))]",
+    "topicNamespaceAuthRule": "[toLower(concat(variables('serviceBusNamespaceName'),concat('/',toLower(parameters('yourInitials')),'topicrule')))]",
+    "serviceBusNamespaceName": "[toLower(concat(toLower(parameters('yourInitials')),'-activateazure'))]",
+    "location": "[parameters('location')]",
+    "sbVersion": "2017-04-01",
+    "dbserver-Name": "[toLower(concat(parameters('yourInitials'),'-activateazure'))]",
+    "dbserver-AdminLogin": "[concat(toLower(parameters('yourInitials')),'sqllogin')]",
+    "dbserver-AdminLoginPassword": "[concat(toLower(parameters('yourInitials')),'pass@word1$')]",
+    "storageAcctName": "[toLower(concat(toLower(parameters('yourInitials')),'activateazure'))]",
+    "cosmosAcctName": "[concat(toLower(parameters('yourInitials')),'-activateazure')]",
+    "storageAcctType": "Standard_LRS",
+    "activateAzureCatalog-Name": "ActivateAzure.Catalog",
+    "activateAzureCatalog-Collation": "SQL_Latin1_General_CP1_CI_AS",
+    "activateAzureCatalog-Edition": "Basic",
+    "activateAzureCatalog-RequestedServiceObjectiveName": "Basic",
+    "activateAzureInventory-Name": "ActivateAzure.Inventory",
+    "activateAzureInventory-Collation": "SQL_Latin1_General_CP1_CI_AS",
+    "activateAzureInventory-Edition": "Basic",
+    "activateAzureInventory-RequestedServiceObjectiveName": "Basic",
+    "serviceBusTopicName": "eventbustopic",
+    "acrName": "[concat(toLower(parameters('yourInitials')),'acractivateazure')]",
+    "acrAdminUserEnabled": "true"
+  },
+
+  "resources": [
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-12-01-preview",
+      "name": "[variables('acrName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Basic",
+        "tier": "Basic"
+      },
+      "properties": {
+        "adminUserEnabled": "[variables('acrAdminUserEnabled')]",
+        "policies": {
+          "quarantinePolicy": {
+            "status": "disabled"
+          },
+          "trustPolicy": {
+            "type": "Notary",
+            "status": "disabled"
+          },
+          "retentionPolicy": {
+            "days": 7,
+            "status": "disabled"
+          }
+        },
+        "encryption": {
+          "status": "disabled"
+        },
+        "dataEndpointEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "kind": "GlobalDocumentDB",
+      "name": "[variables('cosmosAcctName')]",
+      "apiVersion": "2015-04-08",
+      "location": "[variables('location')]",
+      "tags": {
+        "defaultExperience": "DocumentDB"
+      },
+      "scale": null,
+      "properties": {
+        "databaseAccountOfferType": "Standard",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session",
+          "maxIntervalInSeconds": 5,
+          "maxStalenessPrefix": 100
+        },
+        "name": "[variables('cosmosAcctName')]"
+      },
+      "dependsOn": []
+    },
+    {
+      "name": "[variables('dbserver-Name')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[parameters('location')]",
+      "apiVersion": "2014-04-01-preview",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "database-server-name"
+      },
+      "properties": {
+        "administratorLogin": "[variables('dbserver-AdminLogin')]",
+        "administratorLoginPassword": "[variables('dbserver-AdminLoginPassword')]"
+      },
+      "resources": [
+        {
+          "name": "AllowAllWindowsAzureIps",
+          "type": "firewallrules",
+          "location": "[parameters('location')]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('dbserver-Name'))]"
+          ],
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "255.255.255.255"
+          }
+        },
+        {
+          "name": "[variables('activateAzureCatalog-Name')]",
+          "type": "databases",
+          "location": "[parameters('location')]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('dbserver-Name'))]"
+          ],
+          "tags": {
+            "displayName": "ActivateAzure.Catalog"
+          },
+          "properties": {
+            "collation": "[variables('activateAzureCatalog-Collation')]",
+            "edition": "[variables('activateAzureCatalog-Edition')]",
+            "maxSizeBytes": "1073741824",
+            "requestedServiceObjectiveName": "[variables('activateAzureCatalog-RequestedServiceObjectiveName')]"
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('storageAcctName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[parameters('location')]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[variables('storageAcctType')]"
+      },
+      "dependsOn": [],
+      "tags": {
+        "displayName": "activateazurestorage"
+      },
+      "kind": "Storage"
+    },
+    {
+      "apiVersion": "2017-04-01",
+      "name": "[variables('serviceBusNamespaceName')]",
+      "type": "Microsoft.ServiceBus/namespaces",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "properties": {},
+      "resources": [
+        {
+          "apiVersion": "[variables('sbVersion')]",
+          "name": "[variables('serviceBusTopicName')]",
+          "type": "Topics",
+          "dependsOn": [
+            "[concat('Microsoft.ServiceBus/namespaces/', variables('serviceBusNamespaceName'))]"
+          ],
+          "properties": {
+            "path": "[variables('serviceBusTopicName')]"
+          },
+          "resources": [
+            {
+              "apiVersion": "[variables('sbVersion')]",
+              "name": "BasketServiceSubscription",
+              "type": "Subscriptions",
+              "dependsOn": [
+                "[variables('serviceBusTopicName')]"
+              ],
+              "properties": {
+                "maxDeliveryCount": 2,
+                "lockDuration": "PT3M"
+              },
+              "resources": [
+                {
+                  "apiVersion": "[variables('sbVersion')]",
+                  "name": "InvokeEmptyBasketEvent",
+                  "type": "Rules",
+                  "dependsOn": [
+                    "BasketServiceSubscription"
+                  ],
+                  "properties": {
+                    "filterType": "SqlFilter",
+                    "sqlFilter": {
+                      "sqlExpression": "Event = 'InvokeEmptyBasketEvent'",
+                      "requiresPreprocessing": "false"
+                    }
+                  }
+                },
+                {
+                  "apiVersion": "[variables('sbVersion')]",
+                  "name": "ProductChangedEvent",
+                  "type": "Rules",
+                  "dependsOn": [
+                    "BasketServiceSubscription"
+                  ],
+                  "properties": {
+                    "filterType": "SqlFilter",
+                    "sqlFilter": {
+                      "sqlExpression": "Event = 'ProductChangedEvent'",
+                      "requiresPreprocessing": "false"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "apiVersion": "[variables('sbVersion')]",
+              "name": "CatalogServiceSubscription",
+              "type": "Subscriptions",
+              "dependsOn": [
+                "[variables('serviceBusTopicName')]"
+              ],
+              "properties": {
+                "maxDeliveryCount": 2,
+                "deadLetteringOnMessageExpiration": true,
+                "lockDuration": "PT3M"
+              },
+              "resources": [
+              ]
+            },
+            {
+              "apiVersion": "[variables('sbVersion')]",
+              "name": "AllSubscription",
+              "type": "Subscriptions",
+              "dependsOn": [
+                "[variables('serviceBusTopicName')]"
+              ],
+              "properties": {
+                "maxDeliveryCount": 2,
+                "deadLetteringOnMessageExpiration": true,
+                "lockDuration": "PT3M"
+              },
+              "resources": [
+                {
+                  "apiVersion": "[variables('sbVersion')]",
+                  "name": "AllEvents",
+                  "type": "Rules",
+                  "dependsOn": [
+                    "AllSubscription"
+                  ],
+                  "properties": {
+                    "filterType": "SqlFilter",
+                    "sqlFilter": {
+                      "sqlExpression": "1=1",
+                      "requiresPreprocessing": "false"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "apiVersion": "[variables('sbVersion')]",
+              "name": "OrderingServiceSubscription",
+              "type": "Subscriptions",
+              "dependsOn": [
+                "[variables('serviceBusTopicName')]"
+              ],
+              "properties": {
+                "maxDeliveryCount": 2,
+                "deadLetteringOnMessageExpiration": true,
+                "lockDuration": "PT3M"
+              },
+              "resources": [
+                {
+                  "apiVersion": "[variables('sbVersion')]",
+                  "name": "UserCheckoutEvent",
+                  "type": "Rules",
+                  "dependsOn": [
+                    "OrderingServiceSubscription"
+                  ],
+                  "properties": {
+                    "filterType": "SqlFilter",
+                    "sqlFilter": {
+                      "sqlExpression": "Event = 'UserCheckoutEvent'",
+                      "requiresPreprocessing": "false"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "apiVersion": "2017-04-01",
+      "name": "[variables('sbNamespaceAuthRule')]",
+      "type": "Microsoft.ServiceBus/namespaces/authorizationRules",
+      "dependsOn": [ "[concat('Microsoft.ServiceBus/namespaces/', variables('serviceBusNamespaceName'))]" ],
+      "location": "[parameters('location')]",
+      "properties": {
+        "rights": [ "Send" ]
+      }
+    }
+  ],
+  "outputs": {}
+}

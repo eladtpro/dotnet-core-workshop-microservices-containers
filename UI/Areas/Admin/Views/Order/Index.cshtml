@@ -1,0 +1,44 @@
+﻿@using MusicStore.Models
+@model List<OrderDto>
+
+
+<h2>Orders</h2>
+
+<table class="table">
+<tr>
+    <th>
+        @Html.DisplayNameFor(model => model.First().ShoppingBasketId)
+    </th>
+    <th>
+        @Html.DisplayNameFor(model => model.First().OrderDate)
+    </th>
+    <th>
+        @Html.DisplayNameFor(model => model.First().Username)
+    </th>
+    <th>
+        @Html.DisplayNameFor(model => model.First().Total)
+    </th>
+    <th></th>
+</tr>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>
+            @Html.DisplayFor(model => item.ShoppingBasketId)
+        </td>
+        <td>
+            @Html.DisplayFor(model => item.OrderDate)
+        </td>
+        <td>
+            @Html.DisplayFor(model => item.Username)
+        </td>
+        <td>
+            @Html.DisplayFor(model => item.Total)
+        </td>
+        <td>
+            <a asp-controller="Order" asp-action="Details" asp-route-orderId="@item.OrderId">View</a>
+        </td>
+    </tr>
+}
+</table>
