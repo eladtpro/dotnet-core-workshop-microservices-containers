@@ -111,6 +111,13 @@
       },
       "scale": null,
       "properties": {
+        "locations": [
+          {
+            "locationName": "[parameters('location')]",
+            "failoverPriority": 0,
+            "isZoneRedundant": false
+          }
+        ],
         "databaseAccountOfferType": "Standard",
         "consistencyPolicy": {
           "defaultConsistencyLevel": "Session",
@@ -125,7 +132,7 @@
       "name": "[variables('dbserver-Name')]",
       "type": "Microsoft.Sql/servers",
       "location": "[parameters('location')]",
-      "apiVersion": "2014-04-01-preview",
+      "apiVersion": "2019-06-01-preview",
       "dependsOn": [],
       "tags": {
         "displayName": "database-server-name"
@@ -139,7 +146,7 @@
           "name": "AllowAllWindowsAzureIps",
           "type": "firewallrules",
           "location": "[parameters('location')]",
-          "apiVersion": "2014-04-01-preview",
+          "apiVersion": "2015-05-01-preview",
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', variables('dbserver-Name'))]"
           ],
@@ -152,7 +159,7 @@
           "name": "[variables('activateAzureCatalog-Name')]",
           "type": "databases",
           "location": "[parameters('location')]",
-          "apiVersion": "2014-04-01-preview",
+          "apiVersion": "2019-06-01-preview",
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', variables('dbserver-Name'))]"
           ],
@@ -162,7 +169,7 @@
           "properties": {
             "collation": "[variables('activateAzureCatalog-Collation')]",
             "edition": "[variables('activateAzureCatalog-Edition')]",
-            "maxSizeBytes": "1073741824",
+            "maxSizeBytes": 1073741824,
             "requestedServiceObjectiveName": "[variables('activateAzureCatalog-RequestedServiceObjectiveName')]"
           }
         }
