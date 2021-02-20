@@ -45,7 +45,7 @@ $WriteToScreen= "True"
 ####################################################
 
 #If user not logged into Azure account, redirect to login screen
-if ([string]::IsNullOrEmpty($(Get-AzureRmContext).Account)) 
+if ([string]::IsNullOrEmpty($(Get-AzContext).Account)) 
 {
     Connect-AzAccount 
     $VerbosePreference = "SilentlyContinue"
@@ -111,7 +111,7 @@ Write-Host
 
 
 ## ADD dotnet command to Path
-# Add-Content -Path $Profile.CurrentUserAllHosts -Value '$Env:Path += ";$($env:LOCALAPPDATA)\Local\Microsoft\dotnet\dotnet.exe"'
+# Add-Content -Path $Profile.CurrentUserAllHosts -Value '$Env:Path += ";$($env:LOCALAPPDATA)\Local\Microsoft\dotnet\dotnet"'
 
 # Write default ServiceUrls 
 # robvet, 6-28-2018, removed "ServiceUrl" JSON tag hierarchy
@@ -150,7 +150,7 @@ if ($WriteToScreen -eq "True")
 
 #Get the Storage account key - primary key 
 $accountName = "$YourInitials$suffix"
-$storagePrimKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $YourInitials$suffix).Value[0] 
+$storagePrimKey = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $YourInitials$suffix).Value[0] 
 $storageAccountKey="$quote$storageKeyHeader$quote$colon$quote$storagePrimKey$quote$comma"
 $storageAccountKeywoHeader = "$quote$storagePrimKey$quote"
 
@@ -220,7 +220,7 @@ dotnet user-secrets set "CatalogConnectionString" $catalogDBString --project $fi
 
 # Get the Topic connection string
 $topicPrefix = "ServiceBusPublisherConnectionString"
-$topic = (Get-AzureRmServiceBusKey -ResourceGroupName $ResourceGroupName -Namespace $YourInitials-ActivateAzure -Name RootManageSharedAccessKey).PrimaryConnectionString
+$topic = (Get-AzServiceBusKey -ResourceGroupName $ResourceGroupName -Namespace $YourInitials-ActivateAzure -Name RootManageSharedAccessKey).PrimaryConnectionString
 $topicSuffix = ";EntityPath=eventbustopic"
 $topicString="$quote$topicPrefix$quote$colon$quote$topic$topicSuffix$quote$comma"
 $topicStringwoprefix="$quote$topic$topicSuffix$quote"
@@ -242,7 +242,7 @@ if ($WriteToScreen -eq "True")
 
 #Get Cosmos connection information
 # Get the list of keys for the CosmosDB database
-$myKeys = Invoke-AzureRmResourceAction -Action listKeys `
+$myKeys = Invoke-AzResourceAction -Action listKeys `
     -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
     -ApiVersion "2016-03-31" `
     -ResourceGroupName $ResourceGroupName `
@@ -252,7 +252,7 @@ $myKeys = Invoke-AzureRmResourceAction -Action listKeys `
 $primaryKey = $myKeys.primaryMasterKey;
 
 # This method 'should' get the connection string but does not return anything 
-#Invoke-AzureRmResourceAction -Action listConnectionStrings `
+#Invoke-AzResourceAction -Action listConnectionStrings `
 #    -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
 #    -ApiVersion "2016-03-31" `
 #    -ResourceGroupName $ResourceGroupName `

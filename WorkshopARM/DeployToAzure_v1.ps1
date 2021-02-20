@@ -35,7 +35,7 @@
 # No special characters like hypen or &
 # Must start with a letter of the alphabet
 $yourInitials = Read-Host "Enter your initials"
-
+$yourInitials = $yourInitials.ToLower()
 # Subscription ID 
 $subscriptionId = Read-Host "Enter your your subscription id"
 
@@ -164,7 +164,7 @@ else
 
    # Call the PS script that scrapes the Azure resources information, puts secrets in key vault and writes to the app user secrets
    $settingsPath = Join-Path -Path $rootARMPath -ChildPath "WriteDataSettingsToFile.ps1"
-   $command = "$($settingsPath) -YourInitials '$($yourInitials)' -ResourceGroupName '$($resourceGroupName)' -subscriptionId '$($subscriptionId)'"
+   $command = "$($settingsPath) -YourInitials $($yourInitials) -ResourceGroupName $($resourceGroupName) -subscriptionId $($subscriptionId)"
    Write-Host "Executing Command: $($command)"
    Invoke-Expression $command
  }

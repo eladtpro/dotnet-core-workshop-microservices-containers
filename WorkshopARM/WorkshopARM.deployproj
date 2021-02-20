@@ -29,6 +29,7 @@
       <Visible>False</Visible>
     </None>
     <None Include="DeployToAzure_v1.ps1" />
+    <None Include="InvokeDotnet.ps1" />
     <None Include="microservices.json" />
     <None Include="ScaffoldDockerComposeFile.ps1" />
     <None Include="ScaffoldKubernetesYamlFile.ps1" />

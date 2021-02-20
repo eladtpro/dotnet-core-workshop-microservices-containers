@@ -268,3 +268,4 @@ __pycache__/
 # tools/
 
 # application insight config file
+/WorkshopARM/InvokeDotnet.ps1
