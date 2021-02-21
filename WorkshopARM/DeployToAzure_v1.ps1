@@ -47,7 +47,7 @@ $location = "westeurope"
 # Should we bounce this script execution?
 # **********************************************************************************************
 if (($yourInitials -eq '') -or `
-    ($yourInitials.Length -le 4) -or `
+    ($yourInitials.Length -le 2) -or `
     ($subscriptionId -eq '') -or `
     ($location -eq ''))
 {
